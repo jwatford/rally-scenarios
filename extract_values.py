@@ -13,7 +13,7 @@ args_yaml = yaml.safe_load(args)
 data = config.get('image', 'http_image')
 flavor = config.get('orchestration', 'instance_type')
 
-args_yaml['image_name'] = data
+args_yaml['image_name'] = data[16:22]
 args_yaml['flavor_name'] = flavor
 
 args_yaml['volume_type'] = "lvm"
