@@ -4,6 +4,7 @@
 {% set volume_size = volume_size %}
 {% set new_volume_size = new_volume_size %}
 {% set iterations = iterations %}
+{% set time = upgrade %}
 {
    "NovaServers.boot_server": [
         {
@@ -27,8 +28,30 @@
                 }
             }
         }
+              {
+            "args": {
+                "flavor": {
+                    "name": "{{flavor_name}}"
+                },
+                "image": {
+                    "name": "{{image_name}}"
+                }
+                "alternate_name": "novaservers.boot_server_{{upgrade}}"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1,
+            },
+            "context": {
+                "users": {
+                    "tenants": 3,
+                    "users_per_tenant": 2
+                }
+            }
+        }
     ],
-    "NovaServers.boot_and_delete_server": [
+    "NovaServers.boot_and_delete_server_{{upgrade}}": [
         {
             "args": {
                 "flavor": {
@@ -60,7 +83,7 @@
                     "name": "{{image_name}}"
                 },
                 "force_delete": false,
-                "alternate_name": "novaservers.boot_server_and_delete_single"
+                "alternate_name": "novaservers.boot_server_and_delete_server"
             },
             "runner": {
                 "type": "constant",
@@ -75,7 +98,7 @@
             }
         }
     ],
-    "NovaServers.boot_server_from_volume_and_delete": [
+    "NovaServers.boot_server_from_volume_and_delete_{{upgrade}}": [
         {
             "args": {
                 "flavor": {
@@ -100,8 +123,33 @@
                 }
             }
         }
+       {
+            "args": {
+                "flavor": {
+                    "name": "{{flavor_name}}"
+                },
+                "image": {
+                    "name": "{{image_name}}"
+                },
+                "alternate_name": "novaservers.boot_server_from_volume_and_delete"
+                "volume_size": {{volume_size}},
+                "volume_type": "{{volume_type}}",
+                "force_delete": false
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-    "CinderVolumes.create_and_delete_snapshot": [
+    "CinderVolumes.create_and_delete_snapshot_{{upgrade}}": [
         {
             "args": {
                 "force": false
@@ -121,8 +169,28 @@
                 }
             }
         }
+       {
+            "args": {
+                "force": false
+                "alternate_name": "CinderVolumes.create_and_delete_snapshot"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "volumes": {
+                    "size": {{volume_size}}
+                },
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-    "CinderVolumes.create_volume_and_clone": [
+    "CinderVolumes.create_volume_and_clone_{{upgrade}}": [
         {
             "args": {
                 "size": {{volume_size}}
@@ -139,8 +207,25 @@
                 }
             }
         }
+       {
+            "args": {
+                "size": {{volume_size}}
+                "alternate_name": "CinderVolumes.create_volume_and_clone"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-    "CinderVolumes.create_volume_from_snapshot": [
+    "CinderVolumes.create_volume_from_snapshot_{{upgrade}}": [
         {
             "args": {
                 "do_delete": true
@@ -160,8 +245,28 @@
                 }
             }
         }
+       {
+            "args": {
+                "do_delete": true
+                "alternate_name": "CinderVolumes.create_volume_from_snapshot"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "volumes": {
+                    "size": {{volume_size}}
+                },
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-     "CinderVolumes.create_and_extend_volume": [
+     "CinderVolumes.create_and_extend_volume_{{upgrade}}": [
         {
             "args": {
                 "size": {{volume_size}},
@@ -179,8 +284,26 @@
                 }
             }
         }
+        {
+            "args": {
+                "size": {{volume_size}},
+                "new_size": {{new_volume_size}}
+                "alternate_name": "CinderVolumes.create_and_extend_volume"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-    "GlanceImages.create_and_delete_image": [
+    "GlanceImages.create_and_delete_image_{{upgrade}}": [
         {
             "args": {
                 "image_location": "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img",
@@ -199,8 +322,27 @@
                 }
             }
         }
+       {
+            "args": {
+                "image_location": "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img",
+                "container_format": "bare",
+                "disk_format": "qcow2"
+                "alternate_name": "GlanceImages.create_and_delete_image"
+            },
+            "runner": {
+                "type": "constant",
+                "times": {{iterations}},
+                "concurrency": 1
+            },
+            "context": {
+                "users": {
+                    "tenants": 1,
+                    "users_per_tenant": 1
+                }
+            }
+        }
     ],
-    "KeystoneBasic.authenticate_user_and_validate_token": [
+    "KeystoneBasic.authenticate_user_and_validate_token_{{upgrade}}": [
         {
             "args": {},
             "runner": {
@@ -214,8 +356,21 @@
                 }
             }
         }
+       {
+            "args": {"alternate_name": "KeystoneBasic.authenticate_user_and_validate_token"},
+            "runner": {
+                "type": "constant",
+                "times": 20,
+                "concurrency": 5
+            },
+            "sla": {
+                "failure_rate": {
+                    "max": 0
+                }
+            }
+        }
     ],
-    "GlanceImages.create_image_and_boot_instances": [
+    "GlanceImages.create_image_and_boot_instances_{{upgrade}}": [
         {
             "args": {
                 "image_location": "http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img",
@@ -225,6 +380,29 @@
                     "name": "{{flavor_name}}"
                 },
                 "number_instances": 2
+            },
+            "runner": {
+                "type": "constant",
+                "times": 10,
+                "concurrency": 2
+            },
+            "context": {
+                "users": {
+                    "tenants": 3,
+                    "users_per_tenant": 5
+                }
+            }
+        }
+       {
+            "args": {
+                "image_location": "http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img",
+                "container_format": "bare",
+                "disk_format": "qcow2",
+                "flavor": {
+                    "name": "{{flavor_name}}"
+                },
+                "number_instances": 2
+                "alternate_name": "GlanceImages.create_image_and_boot_instances"
             },
             "runner": {
                 "type": "constant",
